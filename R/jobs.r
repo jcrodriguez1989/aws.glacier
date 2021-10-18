@@ -13,75 +13,75 @@
 #' @template topic
 #' @template dots
 #' @export
-initiate_glacier_job <- 
-function(vault, 
-         description,
-         type,
-         archive, 
-         format,
-         limit,
-         marker,
-         bytes, # two-element integer vector
-         start, end,
-         topic,
-         ...) {
+initiate_glacier_job <-
+  function(vault,
+           description,
+           type,
+           archive,
+           format,
+           limit,
+           marker,
+           bytes, # two-element integer vector
+           start, end,
+           topic,
+           ...) {
     vault <- get_vault_name(vault)
     b <- list()
     vtypes <- c("archive-retrieval", "inventory-retrieval")
     if (!type %in% vtypes) {
-        stop("'type' must be one of: ", paste0(vtypes, collapse = ", "))
+      stop("'type' must be one of: ", paste0(vtypes, collapse = ", "))
     }
     b$Type <- type
     if (type == "archive-retrieval") {
-        b$ArchiveId <- archive
+      b$ArchiveId <- archive
     }
     if (!missing(description)) {
-        b$Description <- description
+      b$Description <- description
     }
     if (!missing(marker)) {
-        b$Marker <- marker
+      b$Marker <- marker
     }
-    if (!missing(format)){
-        if (!toupper(format) %in% c("CSV","JSON")) {
-            stop("'format' must be 'CSV' or 'JSON'")
-        }
-        b$Format <- format
+    if (!missing(format)) {
+      if (!toupper(format) %in% c("CSV", "JSON")) {
+        stop("'format' must be 'CSV' or 'JSON'")
+      }
+      b$Format <- format
     }
     if (!missing(limit)) {
-        limit <- as.integer(limit)
-        if (limit < 1) {
-            stop("'limit' must be >= 1")
-        }
-        b$Limit <- limit
+      limit <- as.integer(limit)
+      if (limit < 1) {
+        stop("'limit' must be >= 1")
+      }
+      b$Limit <- limit
     }
-    if (!missing(bytes)){
-        if (is.character(bytes)) {
-            b$RetrievalByteRange <- bytes
-        } else {
-            if ((bytes[1] %% 1024) != 0) {
-                stop("first element of 'bytes' must be megabyte aligned")
-            }
-            if (((bytes[1]+1) %% 1024) != 0) {
-                stop("second element of bytes +1 must be megabyte aligned")
-            }
-            b$RetrievalByteRange <- paste(bytes, collapse = "-")
+    if (!missing(bytes)) {
+      if (is.character(bytes)) {
+        b$RetrievalByteRange <- bytes
+      } else {
+        if ((bytes[1] %% 1024) != 0) {
+          stop("first element of 'bytes' must be megabyte aligned")
         }
+        if (((bytes[1] + 1) %% 1024) != 0) {
+          stop("second element of bytes +1 must be megabyte aligned")
+        }
+        b$RetrievalByteRange <- paste(bytes, collapse = "-")
+      }
     }
     if (!missing(start)) {
-        # need to format correctly
-        query$StartTime <- start
+      # need to format correctly
+      query$StartTime <- start
     }
     if (!missing(end)) {
-        # need to format correctly
-        query$EndTime <- end
+      # need to format correctly
+      query$EndTime <- end
     }
-    
+
     if (!missing(topic)) {
-        b$SNStopic <- topic
+      b$SNStopic <- topic
     }
-    r <- glacierHTTP("POST", paste0("/-/vaults/",vault,"/jobs"), ...)
+    r <- glacierHTTP("POST", paste0("/-/vaults/", vault, "/jobs"), ...)
     return(r)
-}
+  }
 
 #' @rdname get_job
 #' @title Get job
@@ -92,17 +92,17 @@ function(vault,
 #' @return A list.
 #' @export
 get_glacier_job <- function(vault, job, ...) {
-    vault <- get_vault_name(vault)
-    r <- glacierHTTP("GET", paste0("/-/vaults/",vault,"/jobs/", job), ...)
-    return(r)
+  vault <- get_vault_name(vault)
+  r <- glacierHTTP("GET", paste0("/-/vaults/", vault, "/jobs/", job), ...)
+  return(r)
 }
 
 #' @rdname get_job
 #' @export
 get_glacier_job_output <- function(vault, job, ...) {
-    vault <- get_vault_name(vault)
-    r <- glacierHTTP("GET", paste0("/-/vaults/",vault,"/jobs/", job, "/output"), ...)
-    return(r)
+  vault <- get_vault_name(vault)
+  r <- glacierHTTP("GET", paste0("/-/vaults/", vault, "/jobs/", job, "/output"), ...)
+  return(r)
 }
 
 #' @title List jobs
@@ -115,27 +115,27 @@ get_glacier_job_output <- function(vault, job, ...) {
 #' @template dots
 #' @export
 list_glacier_jobs <- function(vault, n = 1000L, completed, marker, status, ...) {
-    vault <- get_vault_name(vault)
-    query <- list()
-    if (!missing(completed)) {
-        query$completed <- completed
+  vault <- get_vault_name(vault)
+  query <- list()
+  if (!missing(completed)) {
+    query$completed <- completed
+  }
+  if (!missing(n)) {
+    if (!n %in% 1:1000) {
+      stop("'n' must be between 1 and 1000")
     }
-    if (!missing(n)) {
-        if (!n %in% 1:1000) {
-            stop("'n' must be between 1 and 1000")
-        }
-        query$limit <- n
+    query$limit <- n
+  }
+  if (!missing(marker)) {
+    query$marker <- marker
+  }
+  if (!missing(status)) {
+    vstat <- c("InProgress", "Succeeded", "Failed")
+    if (!status %in% vstat) {
+      stop("'status' must be one of: ", paste0(vstat, collapse = ", "))
     }
-    if (!missing(marker)) {
-        query$marker <- marker
-    }
-    if (!missing(status)) {
-        vstat <- c("InProgress", "Succeeded", "Failed")
-        if (!status %in% vstat) {
-            stop("'status' must be one of: ", paste0(vstat, collapse = ", "))
-        }
-        query$statuscode <- status
-    }
-    r <- glacierHTTP("GET", paste0("/-/vaults/",vault,"/jobs"), query = query, ...)
-    return(r)
+    query$statuscode <- status
+  }
+  r <- glacierHTTP("GET", paste0("/-/vaults/", vault, "/jobs"), query = query, ...)
+  return(r)
 }

@@ -5,27 +5,27 @@
 #' @template dots
 #' @export
 create_vault <- function(vault, ...) {
-    if (nchar(vault) > 255) {
-        stop("'vault' must be max 255 characters")
-    }
-    r <- glacierHTTP("PUT", paste0("/-/vaults/", vault), ...)
-    return(r)
+  if (nchar(vault) > 255) {
+    stop("'vault' must be max 255 characters")
+  }
+  r <- glacierHTTP("PUT", paste0("/-/vaults/", vault), ...)
+  return(r)
 }
 
 #' @rdname vaults
 #' @export
 delete_vault <- function(vault, ...) {
-    vault <- get_vault_name(vault)
-    r <- glacierHTTP("DELETE", paste0("/-/vaults/", vault), ...)
-    return(r)
+  vault <- get_vault_name(vault)
+  r <- glacierHTTP("DELETE", paste0("/-/vaults/", vault), ...)
+  return(r)
 }
 
 #' @rdname vaults
 #' @export
 describe_vault <- function(vault, ...) {
-    vault <- get_vault_name(vault)
-    r <- glacierHTTP("GET", paste0("/-/vaults/", vault), ...)
-    return(structure(r, class = "aws_glacier_vault"))
+  vault <- get_vault_name(vault)
+  r <- glacierHTTP("GET", paste0("/-/vaults/", vault), ...)
+  return(structure(r, class = "aws_glacier_vault"))
 }
 
 #' @title list_vaults
@@ -35,16 +35,16 @@ describe_vault <- function(vault, ...) {
 #' @template dots
 #' @export
 list_vaults <- function(n = 1000L, marker, ...) {
-    query <- list()
-    if (!n %in% 1:1000) {
-        stop("'n' must be between 1 and 1000")
-    }
-    query$limit <- n
-    if (!missing(marker)) {
-        query$marker <- marker
-    }
-    r <- glacierHTTP("GET", "/-/vaults", ...)
-    return(lapply(r$VaultList, `class<-`, "aws_glacier_vault"))
+  query <- list()
+  if (!n %in% 1:1000) {
+    stop("'n' must be between 1 and 1000")
+  }
+  query$limit <- n
+  if (!missing(marker)) {
+    query$marker <- marker
+  }
+  r <- glacierHTTP("GET", "/-/vaults", ...)
+  return(lapply(r$VaultList, `class<-`, "aws_glacier_vault"))
 }
 
 #' @rdname notifications
@@ -56,33 +56,32 @@ list_vaults <- function(n = 1000L, marker, ...) {
 #' @template dots
 #' @export
 get_vault_notification <- function(vault, ...) {
-    r <- glacierHTTP("GET", paste0("/-/vaults/", vault, "/notification-configuration"), ...)
-    return(r)
+  r <- glacierHTTP("GET", paste0("/-/vaults/", vault, "/notification-configuration"), ...)
+  return(r)
 }
 
 #' @rdname notifications
 #' @export
-set_vault_notification <- 
-function(
-  vault,
-  events = c("ArchiveRetrievalCompleted", "InventoryRetrievalCompleted"),
-  topic,
-  ...
-) {
+set_vault_notification <-
+  function(vault,
+           events = c("ArchiveRetrievalCompleted", "InventoryRetrievalCompleted"),
+           topic,
+           ...) {
     vault <- get_vault_name(vault)
     b <- list()
     events <- match.arg(events)
     b$Events <- events
     b$SNSTopic <- topic
-    r <- glacierHTTP("PUT", paste0("/-/vaults/", vault, "/notification-configuration"), 
-                     body = b, ...)
+    r <- glacierHTTP("PUT", paste0("/-/vaults/", vault, "/notification-configuration"),
+      body = b, ...
+    )
     return(r)
-}
+  }
 
 #' @rdname notifications
 #' @export
 delete_vault_notification <- function(vault, ...) {
-    vault <- get_vault_name(vault)
-    r <- glacierHTTP("DELETE", paste0("/-/vaults/", vault, "/notification-configuration"), ...)
-    return(r)
+  vault <- get_vault_name(vault)
+  r <- glacierHTTP("DELETE", paste0("/-/vaults/", vault, "/notification-configuration"), ...)
+  return(r)
 }
