@@ -79,7 +79,7 @@ initiate_glacier_job <-
     if (!missing(topic)) {
       b$SNStopic <- topic
     }
-    r <- glacierHTTP("POST", paste0("/-/vaults/", vault, "/jobs"), ...)
+    r <- glacierHTTP("POST", paste0("/-/vaults/", vault, "/jobs"), body = b, ...)
     return(r)
   }
 

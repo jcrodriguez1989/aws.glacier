@@ -83,6 +83,12 @@ glacierHTTP <-
       } else {
         r <- GET(url, H, ...)
       }
+    } else if (verb == "POST") {
+      if (length(query)) {
+        r <- POST(url, H, query = query, ...)
+      } else {
+        r <- POST(url, H, ...)
+      }
     } else if (verb == "HEAD") {
       if (length(query)) {
         r <- HEAD(url, H, query = query, ...)
