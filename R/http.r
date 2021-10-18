@@ -17,20 +17,20 @@
 #' @param \dots Additional arguments passed to \code{\link[httr]{GET}}, etc.
 #' @return A list.
 #' @import httr
-#' @importFrom aws.signature signature_v4_auth
+#' @importFrom aws.signature locate_credentials signature_v4_auth
 #' @importFrom jsonlite fromJSON
 #' @export
-glacierHTTP <- 
+glacierHTTP <-
 function(
   verb,
   action,
   query = list(),
   headers = list(),
-  body = "", 
+  body = "",
   verbose = getOption("verbose", FALSE),
-  region = Sys.getenv("AWS_DEFAULT_REGION", "us-east-1"), 
-  key = NULL, 
-  secret = NULL, 
+  region = Sys.getenv("AWS_DEFAULT_REGION", "us-east-1"),
+  key = NULL,
+  secret = NULL,
   session_token = NULL,
   ...
 ) {
@@ -40,7 +40,7 @@ function(
     secret <- credentials[["secret"]]
     session_token <- credentials[["session_token"]]
     region <- credentials[["region"]]
-    
+
     # generate request signature
     if (missing(verb)) {
         verb <- "GET"
@@ -64,7 +64,7 @@ function(
            query_args = query,
            canonical_headers = headers,
            request_body = body,
-           key = key, 
+           key = key,
            secret = secret,
            session_token = session_token,
            verbose = verbose)
@@ -76,7 +76,7 @@ function(
         headers[["x-amz-security-token"]] <- session_token
     }
     H <- do.call(add_headers, headers)
-    
+
     # execute request
     if (verb == "GET") {
         if (length(query)) {
@@ -112,7 +112,7 @@ function(
             r <- VERB("OPTIONS", url, H, ...)
         }
     }
-    
+
     if (http_error(r)) {
         warn_for_status(r)
         h <- headers(r)
