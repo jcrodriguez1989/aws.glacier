@@ -35,7 +35,7 @@ set_retrieval_policy <- function(strategy, bytes, ...) {
 }
 
 #' @rdname retrieval_policies
-#' @xport
+#' @export
 get_glacier_capacity <- function(...) {
     r <- glacierHTTP("GET", "/-/provisioned-capacity", ...)
     return(r$Policy)
